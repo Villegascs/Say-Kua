@@ -3,6 +3,7 @@ import StoreLayout from './layouts/StoreLayout';
 import AdminLayout from './layouts/AdminLayout';
 import Home from './pages/store/Home';
 import Checkout from './pages/store/Checkout';
+import OrderTracking from './pages/store/OrderTracking';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ChefDashboard from './pages/chef/ChefDashboard';
 import Login from './pages/auth/Login';
@@ -24,6 +25,7 @@ function App() {
               <Route path="/" element={<StoreLayout />}>
                 <Route index element={<Home />} />
                 <Route path="checkout" element={<Checkout />} />
+                <Route path="track/:orderId" element={<OrderTracking />} />
               </Route>
               
               <Route path="/login" element={<Login />} />

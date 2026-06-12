@@ -37,10 +37,12 @@ export const OrdersProvider = ({ children }) => {
         status: 'Pendiente', 
         createdAt: new Date().toISOString()
       };
-      await addDoc(collection(db, "orders"), newOrder);
+      const docRef = await addDoc(collection(db, "orders"), newOrder);
+      return docRef.id;
     } catch (e) {
       console.error("Error adding order: ", e);
       alert("Error al enviar el pedido: Posible problema de permisos en Firestore");
+      return null;
     }
   };
 

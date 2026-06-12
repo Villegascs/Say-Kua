@@ -45,45 +45,73 @@ const Checkout = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const [orderId, setOrderId] = useState(null);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (cart.length === 0) return;
 
     setLoading(true);
-    // Simulate network delay
-    setTimeout(() => {
-      addOrder({
-        customer: {
-          name: formData.name,
-          lastName: formData.lastName,
-          documentType: formData.documentType,
-          cedula: formData.cedula
-        },
-        items: cart,
-        totalUSD,
-        totalBS,
-        payment: {
-          method: formData.paymentMethod,
-          bank: formData.paymentMethod === 'pago_movil' ? formData.bank : null,
-          currency: formData.paymentMethod === 'efectivo' ? formData.cashCurrency : null,
-          reference: formData.reference
-        }
-      });
-      setLoading(false);
+    
+    const newOrderId = await addOrder({
+      customer: {
+        name: formData.name,
+        lastName: formData.lastName,
+        documentType: formData.documentType,
+        cedula: formData.cedula
+      },
+      items: cart,
+      totalUSD,
+      totalBS,
+      payment: {
+        method: formData.paymentMethod,
+        bank: formData.paymentMethod === 'pago_movil' ? formData.bank : null,
+        currency: formData.paymentMethod === 'efectivo' ? formData.cashCurrency : null,
+        reference: formData.reference
+      }
+    });
+
+    setLoading(false);
+    
+    if (newOrderId) {
+      setOrderId(newOrderId);
       setSuccess(true);
       clearCart();
-    }, 1500);
+    }
+  };
+
+  const handleWhatsAppRedirect = () => {
+    const phone = "584244745917";
+    const trackingUrl = `${window.location.origin}/track/${orderId}`;
+    
+    let itemsText = cart.map(i => `${i.quantity}x ${i.name}`).join('%0A');
+    
+    let text = `¡Hola Say-Kua! Acabo de realizar un pedido.%0A%0A`;
+    text += `*Cliente:* ${formData.name} ${formData.lastName}%0A`;
+    text += `*Cédula:* ${formData.documentType}-${formData.cedula}%0A%0A`;
+    text += `*Pedido:*%0A${itemsText}%0A%0A`;
+    text += `*Total Pagado:* Bs ${totalBS} ($${totalUSD})%0A`;
+    text += `*Método:* ${formData.paymentMethod} ${formData.reference ? `(Ref: ${formData.reference})` : ''}%0A%0A`;
+    text += `Aquí pueden ver y cambiar el estado de mi pedido:%0A${trackingUrl}`;
+
+    window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
+    navigate(`/track/${orderId}`);
   };
 
   if (success) {
     return (
-      <div className="container" style={styles.successContainer}>
-        <CheckCircle size={64} color="var(--primary-color)" className="animate-fade-in" />
-        <h2 style={{marginTop: '20px'}}>¡Pedido Realizado con Éxito!</h2>
-        <p style={{color: 'var(--text-muted)', marginBottom: '30px'}}>
-          Tu pedido está pendiente de verificación. Nuestro equipo confirmará tu pago en breve.
+      <div className="container animate-fade-in" style={styles.successContainer}>
+        <CheckCircle size={64} color="var(--primary-color)" />
+        <h2 style={{marginTop: '20px', color: '#fff'}}>¡Pedido Enviado!</h2>
+        <p style={{color: 'var(--text-muted)', marginBottom: '30px', maxWidth: '400px'}}>
+          Para que nuestro equipo comience a prepararlo, por favor envíanos la confirmación por WhatsApp.
         </p>
-        <button className="btn-primary" onClick={() => navigate('/')}>Volver al Menú</button>
+        <button className="btn-primary" onClick={handleWhatsAppRedirect} style={{marginBottom: '15px', backgroundColor: '#25D366', color: '#fff', fontSize: '1.1rem', padding: '12px 24px'}}>
+          Enviar Confirmación a WhatsApp
+        </button>
+        <button className="btn-outline" onClick={() => navigate(`/track/${orderId}`)}>
+          Solo ver el estado del pedido
+        </button>
       </div>
     );
   }
