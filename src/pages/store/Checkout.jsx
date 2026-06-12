@@ -31,6 +31,8 @@ const Checkout = () => {
     lastName: '',
     documentType: 'V',
     cedula: '',
+    deliveryType: 'pickup',
+    address: '',
     paymentMethod: 'pago_movil',
     cashCurrency: 'usd',
     bank: VENEZUELAN_BANKS[0],
@@ -66,6 +68,10 @@ const Checkout = () => {
         documentType: finalFormData.documentType,
         cedula: finalFormData.cedula
       },
+      delivery: {
+        type: finalFormData.deliveryType,
+        address: finalFormData.deliveryType === 'delivery' ? finalFormData.address : null
+      },
       items: finalCart,
       totalUSD: finalTotalUSD,
       totalBS: finalTotalBS,
@@ -98,10 +104,14 @@ const Checkout = () => {
     const trackingUrl = `${window.location.origin}/track/${orderId}`;
     
     let itemsText = submittedOrder.cart.map(i => `${i.quantity}x ${i.name}`).join('%0A');
+    let deliveryText = submittedOrder.formData.deliveryType === 'delivery' 
+      ? `Delivery%0A*Dirección:* ${submittedOrder.formData.address}` 
+      : 'Pick-Up (Retiro en local)';
     
     let text = `¡Hola Say-Kua! Acabo de realizar un pedido.%0A%0A`;
     text += `*Cliente:* ${submittedOrder.formData.name} ${submittedOrder.formData.lastName}%0A`;
-    text += `*Cédula:* ${submittedOrder.formData.documentType}-${submittedOrder.formData.cedula}%0A%0A`;
+    text += `*Cédula:* ${submittedOrder.formData.documentType}-${submittedOrder.formData.cedula}%0A`;
+    text += `*Entrega:* ${deliveryText}%0A%0A`;
     text += `*Pedido:*%0A${itemsText}%0A%0A`;
     text += `*Total Pagado:* Bs ${submittedOrder.totalBS} ($${submittedOrder.totalUSD})%0A`;
     text += `*Método:* ${submittedOrder.formData.paymentMethod} ${submittedOrder.formData.reference ? `(Ref: ${submittedOrder.formData.reference})` : ''}%0A%0A`;
@@ -206,6 +216,27 @@ const Checkout = () => {
                 <input required type="text" name="cedula" value={formData.cedula} onChange={handleChange} placeholder="Ej. 12345678" style={{flex: 1}} />
               </div>
             </div>
+
+            <div className="input-group" style={{marginTop: '20px'}}>
+              <label>Tipo de Entrega</label>
+              <div style={{display: 'flex', gap: '20px', marginTop: '8px'}}>
+                <label style={{display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 'normal'}}>
+                  <input type="radio" name="deliveryType" value="pickup" checked={formData.deliveryType === 'pickup'} onChange={handleChange} />
+                  Retiro en local (Pick-Up)
+                </label>
+                <label style={{display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 'normal'}}>
+                  <input type="radio" name="deliveryType" value="delivery" checked={formData.deliveryType === 'delivery'} onChange={handleChange} />
+                  Delivery
+                </label>
+              </div>
+            </div>
+
+            {formData.deliveryType === 'delivery' && (
+              <div className="input-group animate-fade-in" style={{marginTop: '15px'}}>
+                <label>Dirección de Entrega</label>
+                <input required type="text" name="address" value={formData.address} onChange={handleChange} placeholder="Calle, Avenida, Edificio, Referencia..." />
+              </div>
+            )}
 
             <div className="input-group" style={{marginTop: '20px'}}>
               <label>Método de Pago</label>

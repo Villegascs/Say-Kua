@@ -4,7 +4,7 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { ArrowLeft, Clock, CheckCircle, ChefHat, PackageCheck, XCircle } from 'lucide-react';
 
-const STATUS_STEPS = ['Pendiente', 'Aceptado', 'En Proceso', 'Listo'];
+const STATUS_STEPS = ['Pendiente', 'Aceptado', 'En Proceso', 'Listo', 'Despachado'];
 
 const OrderTracking = () => {
   const { orderId } = useParams();
@@ -56,6 +56,7 @@ const OrderTracking = () => {
       case 'Aceptado': return <CheckCircle size={24} />;
       case 'En Proceso': return <ChefHat size={24} />;
       case 'Listo': return <PackageCheck size={24} />;
+      case 'Despachado': return <div style={{fontSize: '24px'}}>🛵</div>;
       default: return <Clock size={24} />;
     }
   };
