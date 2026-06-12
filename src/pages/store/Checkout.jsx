@@ -27,6 +27,7 @@ const Checkout = () => {
   const [formData, setFormData] = useState({
     name: '',
     lastName: '',
+    documentType: 'V',
     cedula: '',
     paymentMethod: 'pago_movil',
     cashCurrency: 'usd',
@@ -55,6 +56,7 @@ const Checkout = () => {
         customer: {
           name: formData.name,
           lastName: formData.lastName,
+          documentType: formData.documentType,
           cedula: formData.cedula
         },
         items: cart,
@@ -151,8 +153,17 @@ const Checkout = () => {
             </div>
 
             <div className="input-group">
-              <label>Cédula de Identidad</label>
-              <input required type="text" name="cedula" value={formData.cedula} onChange={handleChange} />
+              <label>Cédula o RIF</label>
+              <div style={{display: 'flex', gap: '8px'}}>
+                <select name="documentType" value={formData.documentType} onChange={handleChange} style={{width: '80px'}}>
+                  <option value="V">V</option>
+                  <option value="E">E</option>
+                  <option value="J">J</option>
+                  <option value="G">G</option>
+                  <option value="P">P</option>
+                </select>
+                <input required type="text" name="cedula" value={formData.cedula} onChange={handleChange} placeholder="Ej. 12345678" style={{flex: 1}} />
+              </div>
             </div>
 
             <div className="input-group" style={{marginTop: '20px'}}>

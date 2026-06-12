@@ -147,7 +147,7 @@ const AdminDashboard = () => {
                 
                 <div style={styles.customerInfo}>
                   <p><strong>Cliente:</strong> {order.customer.name} {order.customer.lastName}</p>
-                  <p><strong>Cédula:</strong> {order.customer.cedula}</p>
+                  <p><strong>Cédula:</strong> {order.customer.documentType ? `${order.customer.documentType}-` : 'V-'}{order.customer.cedula}</p>
                   <p><strong>Total:</strong> ${order.totalUSD} / Bs {order.totalBS}</p>
                   <p><strong>Pago:</strong> {renderPaymentInfo(order.payment)}</p>
                   <p style={{fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '8px'}}>
