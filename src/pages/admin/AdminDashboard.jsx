@@ -42,7 +42,7 @@ const AdminDashboard = () => {
   return (
     <div className="animate-fade-in">
       <div style={styles.tabs}>
-        {['Pendiente', 'Aceptado', 'En Proceso', 'Listo', 'Despachado', 'Cancelado', 'Gestión de Menú'].map(tab => (
+        {['Pendiente', 'Aceptado', 'En Proceso', 'Listo', 'Cancelado', 'Gestión de Menú'].map(tab => (
           <button 
             key={tab} 
             onClick={() => setActiveTab(tab)}
@@ -183,14 +183,6 @@ const AdminDashboard = () => {
                     </button>
                   </div>
                 )}
-
-                {activeTab === 'Listo' && (
-                  <div style={styles.actions}>
-                    <button className="btn-primary" onClick={() => updateOrderStatus(order.id, 'Despachado')} style={{flex: 1, padding: '8px', backgroundColor: '#8E24AA', color: '#fff'}}>
-                      Marcar como Despachado 🛵
-                    </button>
-                  </div>
-                )}
               </div>
             ))
           )}
@@ -206,7 +198,6 @@ const getStatusColor = (status) => {
     case 'Aceptado': return '#1976D2';
     case 'En Proceso': return '#E64A19';
     case 'Listo': return '#388E3C';
-    case 'Despachado': return '#8E24AA';
     case 'Cancelado': return '#D32F2F';
     default: return 'var(--border-color)';
   }

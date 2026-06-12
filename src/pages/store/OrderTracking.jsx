@@ -4,7 +4,7 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { ArrowLeft, Clock, CheckCircle, ChefHat, PackageCheck, XCircle } from 'lucide-react';
 
-const STATUS_STEPS = ['Pendiente', 'Aceptado', 'En Proceso', 'Listo', 'Despachado'];
+const STATUS_STEPS = ['Pendiente', 'Aceptado', 'En Proceso', 'Listo'];
 
 const OrderTracking = () => {
   const { orderId } = useParams();
@@ -50,15 +50,23 @@ const OrderTracking = () => {
   const currentStatusIndex = STATUS_STEPS.indexOf(order.status);
   const isCanceled = order.status === 'Cancelado';
 
+  const isDelivery = order.delivery?.type === 'delivery';
+
   const getStepIcon = (step) => {
     switch (step) {
       case 'Pendiente': return <Clock size={24} />;
       case 'Aceptado': return <CheckCircle size={24} />;
       case 'En Proceso': return <ChefHat size={24} />;
-      case 'Listo': return <PackageCheck size={24} />;
-      case 'Despachado': return <div style={{fontSize: '24px'}}>🛵</div>;
+      case 'Listo': return isDelivery ? <div style={{fontSize: '24px'}}>🛵</div> : <PackageCheck size={24} />;
       default: return <Clock size={24} />;
     }
+  };
+
+  const getStepText = (step) => {
+    if (step === 'Listo') {
+      return isDelivery ? 'Pedido Despachado' : 'Pedido Listo';
+    }
+    return step;
   };
 
   return (
@@ -100,7 +108,7 @@ const OrderTracking = () => {
                     color: isCurrent ? '#fff' : (isCompleted ? '#E0E0E0' : 'var(--text-muted)'),
                     fontWeight: isCurrent ? '700' : '500'
                   }}>
-                    {step}
+                    {getStepText(step)}
                   </div>
                   {index < STATUS_STEPS.length - 1 && (
                     <div style={{
