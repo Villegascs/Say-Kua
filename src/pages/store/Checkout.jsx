@@ -9,10 +9,19 @@ const VENEZUELAN_BANKS = [
   'BNC', 'Bancaribe', 'Banco del Tesoro', 'Banplus'
 ];
 
-// Mock API fetch for BCV Euro Rate
+// Fetch real BCV Euro Rate from ve.dolarapi.com
 const fetchBCVRate = async () => {
-  // In a real app, this would hit an API.
-  return new Promise(resolve => setTimeout(() => resolve(45.20), 500));
+  try {
+    const response = await fetch('https://ve.dolarapi.com/v1/euros');
+    const data = await response.json();
+    const oficialEuro = data.find(item => item.fuente === 'oficial');
+    if (oficialEuro && oficialEuro.promedio) {
+      return Number(oficialEuro.promedio.toFixed(2));
+    }
+  } catch (error) {
+    console.error('Error fetching BCV rate:', error);
+  }
+  return 45.20; // Fallback rate if API fails
 };
 
 const Checkout = () => {
