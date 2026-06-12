@@ -23,6 +23,8 @@ const Checkout = () => {
   const [rate, setRate] = useState(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [orderId, setOrderId] = useState(null);
+  const [submittedOrder, setSubmittedOrder] = useState(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -45,35 +47,45 @@ const Checkout = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const [orderId, setOrderId] = useState(null);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (cart.length === 0) return;
 
     setLoading(true);
     
+    // Save order details before clearing cart
+    const finalCart = [...cart];
+    const finalTotalUSD = totalUSD;
+    const finalTotalBS = totalBS;
+    const finalFormData = { ...formData };
+
     const newOrderId = await addOrder({
       customer: {
-        name: formData.name,
-        lastName: formData.lastName,
-        documentType: formData.documentType,
-        cedula: formData.cedula
+        name: finalFormData.name,
+        lastName: finalFormData.lastName,
+        documentType: finalFormData.documentType,
+        cedula: finalFormData.cedula
       },
-      items: cart,
-      totalUSD,
-      totalBS,
+      items: finalCart,
+      totalUSD: finalTotalUSD,
+      totalBS: finalTotalBS,
       payment: {
-        method: formData.paymentMethod,
-        bank: formData.paymentMethod === 'pago_movil' ? formData.bank : null,
-        currency: formData.paymentMethod === 'efectivo' ? formData.cashCurrency : null,
-        reference: formData.reference
+        method: finalFormData.paymentMethod,
+        bank: finalFormData.paymentMethod === 'pago_movil' ? finalFormData.bank : null,
+        currency: finalFormData.paymentMethod === 'efectivo' ? finalFormData.cashCurrency : null,
+        reference: finalFormData.reference
       }
     });
 
     setLoading(false);
     
     if (newOrderId) {
+      setSubmittedOrder({
+        cart: finalCart,
+        totalUSD: finalTotalUSD,
+        totalBS: finalTotalBS,
+        formData: finalFormData
+      });
       setOrderId(newOrderId);
       setSuccess(true);
       clearCart();
@@ -81,17 +93,18 @@ const Checkout = () => {
   };
 
   const handleWhatsAppRedirect = () => {
+    if (!submittedOrder) return;
     const phone = "584244745917";
     const trackingUrl = `${window.location.origin}/track/${orderId}`;
     
-    let itemsText = cart.map(i => `${i.quantity}x ${i.name}`).join('%0A');
+    let itemsText = submittedOrder.cart.map(i => `${i.quantity}x ${i.name}`).join('%0A');
     
     let text = `¡Hola Say-Kua! Acabo de realizar un pedido.%0A%0A`;
-    text += `*Cliente:* ${formData.name} ${formData.lastName}%0A`;
-    text += `*Cédula:* ${formData.documentType}-${formData.cedula}%0A%0A`;
+    text += `*Cliente:* ${submittedOrder.formData.name} ${submittedOrder.formData.lastName}%0A`;
+    text += `*Cédula:* ${submittedOrder.formData.documentType}-${submittedOrder.formData.cedula}%0A%0A`;
     text += `*Pedido:*%0A${itemsText}%0A%0A`;
-    text += `*Total Pagado:* Bs ${totalBS} ($${totalUSD})%0A`;
-    text += `*Método:* ${formData.paymentMethod} ${formData.reference ? `(Ref: ${formData.reference})` : ''}%0A%0A`;
+    text += `*Total Pagado:* Bs ${submittedOrder.totalBS} ($${submittedOrder.totalUSD})%0A`;
+    text += `*Método:* ${submittedOrder.formData.paymentMethod} ${submittedOrder.formData.reference ? `(Ref: ${submittedOrder.formData.reference})` : ''}%0A%0A`;
     text += `Aquí pueden ver y cambiar el estado de mi pedido:%0A${trackingUrl}`;
 
     window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
